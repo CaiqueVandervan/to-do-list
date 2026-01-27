@@ -8,6 +8,7 @@ type CustomizedChipProps = ChipProps & {
     borderColor?: string
     hoverColor?: string
     selectedColor?: string
+    selectedBorderColor?: string
 }
 
 const ColorChip = styled(Chip)<{
@@ -15,23 +16,28 @@ const ColorChip = styled(Chip)<{
     hoverColor?: string
     borderColor?: string
     selectedColor?: string
+    selectedBorderColor?: string
     isSelected?: boolean
-}>(({bgColor, hoverColor, borderColor, selectedColor, isSelected}) => ({
+}>(({bgColor, hoverColor, borderColor, selectedColor, selectedBorderColor, isSelected}) => ({
 backgroundColor: isSelected ? selectedColor : bgColor,
-border: `1px solid ${borderColor}`,
+border: isSelected ? `1px solid ${selectedBorderColor}` : `1px solid ${borderColor}`,
 "&:hover": {
     backgroundColor: hoverColor
 },
+"& .MuiChip-icon": {
+    color: isSelected ? "#212121" : "#212121",
+    fontSize: "18px"
+}
 }))
 
-const CustomizedChip = ({label, bgColor,hoverColor, borderColor, selectedColor, ...props}: CustomizedChipProps ) => {
+const CustomizedChip = ({label, bgColor,hoverColor, borderColor, selectedColor, selectedBorderColor, ...props}: CustomizedChipProps ) => {
     
     const [isSelected, setIsSelected] = useState(false)
     const handleClick = () => {
         setIsSelected(prev => !prev)
     }
     return(
-<ColorChip {...props} label={label} bgColor={bgColor} hoverColor={hoverColor} borderColor={borderColor} isSelected={isSelected} selectedColor={selectedColor} onClick={() => {
+<ColorChip {...props} label={label} bgColor={bgColor} hoverColor={hoverColor} borderColor={borderColor} selectedBorderColor={selectedBorderColor} isSelected={isSelected} selectedColor={selectedColor} onClick={() => {
     handleClick()
 }}/>
     )

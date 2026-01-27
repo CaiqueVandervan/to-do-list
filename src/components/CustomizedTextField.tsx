@@ -20,7 +20,7 @@ const ColorsTextField = styled(TextField)<{
     },
     "& .MuiOutlinedInput-root": {
         "& fieldset": {
-            borderColor: borderColor
+            borderColor
         },
         "&:hover fieldset": {
             borderColor: hoverColor

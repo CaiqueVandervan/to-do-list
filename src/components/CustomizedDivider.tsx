@@ -2,21 +2,24 @@ import {Divider} from "@mui/material"
 import {styled} from "@mui/material/styles"
 
 type CustomizedDividerProps = {
-    margin?: string
+    marginTop?: string
+    marginBottom?: string
     color?: string
 }
 
 const CustomDivider = styled(Divider)<{
-    margin?: string
+    marginTop?: string
+    marginBottom?: string
     color?: string
-}>(({margin, color}) => ({
-    margin: margin,
+}>(({marginTop, marginBottom, color}) => ({
+    marginTop,
+    marginBottom,
     borderColor: color
 }))
 
-const CustomizedDivider = ({margin, color}: CustomizedDividerProps) => {
+const CustomizedDivider = ({marginTop, marginBottom, color}: CustomizedDividerProps) => {
     return(
-<CustomDivider margin={margin} color={color}/>
+<CustomDivider marginTop={marginTop} marginBottom={marginBottom} color={color}/>
     )
 }
 export default CustomizedDivider
