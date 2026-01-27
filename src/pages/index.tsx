@@ -74,7 +74,7 @@ const ToDoList = () => {
         <Box className="mt-4 border-b-2">
           <Box className="h-16 flex justify-between items-center border-t-2">
             <Box className="bg-purple-700 h-full w-1" />
-            <Typography className="flex-1 pl-2">Estudar Next.js shadcn  </Typography>
+            <Typography className="flex-1 pl-2">Estudar Next.js shadcn GITHUB</Typography>
             <Box className="flex items-center">
               <IconButton onClick={handleOpenEdit}><EditIcon className="text-gray-700" fontSize="small"/></IconButton>
               <IconButton onClick={handleOpenDelete}><DeleteForeverIcon className="text-gray-700" fontSize="small"/></IconButton>
