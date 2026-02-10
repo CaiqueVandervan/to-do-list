@@ -12,7 +12,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import CancelIcon from "@mui/icons-material/Cancel";
 import CustomizedModal from "@/components/CustomizedModal"
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -30,6 +30,8 @@ const ToDoList = () => {
   const [taskList, setTaskList] = useState<Task[]>([])
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedTask, setSelectedTask] = useState<Task>()
+  const [newTask, setNewTask] = useState<string>("")
+  const [editTask, setEditTask] = useState<string>("")
   const maxLength = 50
 
   const handleOpenEdit = () => {
@@ -37,17 +39,11 @@ const ToDoList = () => {
     setAnchorEl(null)
   }
 
-  const handleCloseEdit = () => {
-    setOpenModalEdit(false)
-  }
+
 
   const handleOpenDelete = () => {
     setOpenDeleteModal(true)
     setAnchorEl(null)
-  }
-
-  const handleCloseDelete = () => {
-    setOpenDeleteModal(false)
   }
 
   const handleOpenDeleteTasks = () => {
@@ -58,13 +54,71 @@ const ToDoList = () => {
     setOpenDeleteTasksModal(false)
   }
 
-  const handleSubmit = async () => {
-    const novaTask = await fetch("api/tasks", {
-      method: "GET"
+  const updateTasks = async (taskName: string, id: number) => {
+    try {
+      await fetch(`/api/tasks/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          task_name: taskName
+        })
+      })
+      if (!selectedTask) return
+      setTaskList(prev => prev.map(task => task.id === selectedTask.id ? { ...task, task_name: editTask } : task))
+    } catch (error) {
+      console.warn("NãO FOIU", error)
+    }
+  }
+
+  const handleEditTasks = async () => {
+    if (!selectedTask) return
+    await updateTasks(editTask, selectedTask.id)
+    setOpenModalEdit(false)
+  }
+
+
+  const postTasks = async (task: string) => {
+    const novaTask = await fetch("/api/tasks/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        task_name: task
+      })
     })
     const data = await novaTask.json()
-    setTaskList(data)
+    setNewTask(data)
+    console.log("POST: ", data)
   }
+
+  const deleteTasks = async (id: number) => {
+    await fetch(`/api/tasks/${id}`, {
+      method: "DELETE",
+    })
+    setTaskList(prev => prev.filter(task => task.id !== id))
+  }
+
+  const handleCloseDelete = async () => {
+    if (!selectedTask) return
+    const id = selectedTask.id
+    await deleteTasks(id)
+    setOpenDeleteModal(false)
+  }
+
+
+  useEffect(() => {
+    const createTask = async () => {
+      const getTasks = await fetch("/api/tasks/tasks", {
+        method: "GET"
+      })
+      const resp = await getTasks.json()
+      setTaskList(resp)
+    }
+    createTask()
+  }, [newTask])
 
   const formatDate = (date: string) => {
     if (!date) return
@@ -93,7 +147,10 @@ const ToDoList = () => {
         <Box className="flex gap-3">
           <CustomizedTextField className="w-60"
             value={value}
-            onChange={(digitado) => setValue(digitado.target.value)}
+            onChange={(digitado) => {
+              setValue(digitado.target.value)
+              setNewTask(digitado.target.value)
+            }}
             slotProps={{
               htmlInput: {
                 maxLength: maxLength
@@ -118,7 +175,8 @@ const ToDoList = () => {
               variant="contained"
               startIcon={<PostAddIcon />}
               size="large"
-              onClick={handleSubmit} />
+              onClick={() => postTasks(newTask)}
+            />
           </Box>
         </Box>
 
@@ -220,21 +278,26 @@ const ToDoList = () => {
 
         <CustomizedModal open={openModalEdit} label="Editar esta tarefa?">
           <CustomizedTextField className="w-full"
-            label="Editar..."
+            label="Editar"
+            defaultValue={selectedTask && selectedTask.task_name}
+            onChange={(e) => setEditTask(e.target.value)}
             topTitleColor="#8e24aa"
             hoverColor="#4a0072"
             borderColor="#7b1fa2"
             focusColor="#ab47bc" />
           <Box className="flex justify-center gap-1.5">
-            <CustomizedButton label="Salvar" bgColor="#7b1fa2" hoverColor="#4a0072" variant="contained" size="small" onClick={handleCloseEdit} />
-            <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={handleCloseEdit} />
+            <CustomizedButton label="Salvar" bgColor="#7b1fa2" hoverColor="#4a0072" variant="contained" size="small" onClick={() => handleEditTasks()} />
+            <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenModalEdit(false)} />
           </Box>
         </CustomizedModal>
 
         <CustomizedModal open={openDeleteModal} label="Tem certeza que deseja excluir esta tarefa?">
+          <Box className="flex justify-center">
+            <Typography>{`"${selectedTask && selectedTask.task_name}"`}</Typography>
+          </Box>
           <Box className="flex justify-center gap-1.5">
-            <CustomizedButton label="Sim" bgColor="#7b1fa2" hoverColor="#4a0072" variant="contained" size="small" onClick={handleCloseDelete} />
-            <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={handleCloseDelete} />
+            <CustomizedButton label="Sim" bgColor="#7b1fa2" hoverColor="#4a0072" variant="contained" size="small" onClick={() => handleCloseDelete()} />
+            <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenDeleteModal(false)} />
           </Box>
         </CustomizedModal>
 
