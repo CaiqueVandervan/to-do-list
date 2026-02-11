@@ -3,7 +3,7 @@ import CustomizedButton from "@/components/CustomizedButton"
 import CustomizedTextField from "@/components/CustomizedTextField";
 import CustomizedDivider from "@/components/CustomizedDivider";
 import CustomizedChip from "@/components/CustomizedChip";
-import { Card, Box, Typography, IconButton, Modal, InputAdornment, Zoom, MenuItem } from "@mui/material"
+import { Card, Box, Typography, IconButton, InputAdornment, Zoom, MenuItem } from "@mui/material"
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
