@@ -15,8 +15,8 @@ const LoginPage = () => {
                     </Typography>
                 </Box>
                 <Box className="grid gap-4">
-                    <CustomizedTextField label="E-mail" size="small" topTitleColor="#8e24aa" hoverColor="#4a0072" borderColor="#7b1fa2" focusColor="#ab47bc" className="w-[25rem]" />
-                    <CustomizedTextField label="Senha" size="small" topTitleColor="#8e24aa" hoverColor="#4a0072" borderColor="#7b1fa2" focusColor="#ab47bc" className="w-[25rem]" />
+                    <CustomizedTextField label="E-mail" size="small" topTitleColor="#9370db" hoverColor="#4a0072" borderColor="#4e54c8" focusColor="#4e54c8" className="w-[25rem]" />
+                    <CustomizedTextField label="Senha" size="small" topTitleColor="#9370db" hoverColor="#4a0072" borderColor="#4e54c8" focusColor="#4e54c8" className="w-[25rem]" />
                 </Box>
                 <Box className="h-12 grid grid-cols-2 items-center">
                     <CustomizedLink href="http://localhost:3000/register" underline="hover" className="justify-self-start">
@@ -24,7 +24,7 @@ const LoginPage = () => {
                             Não possui conta? Cadastre-se
                         </Typography>
                     </CustomizedLink>
-                    <CustomizedButton label="Entrar" size="small" variant="contained" bgColor="#7b1fa2" hoverColor="#4a0072" className=" justify-self-end w-32" startIcon={<LoginIcon />} />
+                    <CustomizedButton label="Entrar" size="small" variant="contained" bgColor="#4e54c8" hoverColor="#302b63" className=" justify-self-end w-32" startIcon={<LoginIcon />} />
                 </Box>
             </Card>
         </Layout>

@@ -17,9 +17,9 @@ const RegisterPage = () => {
                     <AssignmentIcon className="text-gray-700" />
                 </Box>
                 <Box className="grid gap-4">
-                    <CustomizedTextField label="Nome de usuário" size="small" topTitleColor="#8e24aa" hoverColor="#4a0072" borderColor="#7b1fa2" focusColor="#ab47bc" className="w-[25rem]" />
-                    <CustomizedTextField label="Seu melhor e-mail" size="small" topTitleColor="#8e24aa" hoverColor="#4a0072" borderColor="#7b1fa2" focusColor="#ab47bc" className="w-[25rem]" />
-                    <CustomizedTextField label="Senha forte" size="small" topTitleColor="#8e24aa" hoverColor="#4a0072" borderColor="#7b1fa2" focusColor="#ab47bc" className="w-[25rem]" />
+                    <CustomizedTextField label="Nome de usuário" size="small" topTitleColor="#9370db" hoverColor="#4a0072" borderColor="#4e54c8" focusColor="#4e54c8" className="w-[25rem]" />
+                    <CustomizedTextField label="Seu melhor e-mail" size="small" topTitleColor="#9370db" hoverColor="#4a0072" borderColor="#4e54c8" focusColor="#4e54c8" className="w-[25rem]" />
+                    <CustomizedTextField label="Senha forte" size="small" topTitleColor="#9370db" hoverColor="#4a0072" borderColor="#4e54c8" focusColor="#4e54c8" className="w-[25rem]" />
                 </Box>
                 <Box className="h-12 grid grid-cols-2 items-center">
                     <CustomizedLink href="http://localhost:3000/login" underline="hover" className="justify-self-start">
@@ -27,7 +27,7 @@ const RegisterPage = () => {
                             Ja possui conta? Faça login
                         </Typography>
                     </CustomizedLink>
-                    <CustomizedButton label="Cadastrar" size="small" variant="contained" bgColor="#7b1fa2" hoverColor="#4a0072" className="justify-self-end w-32" startIcon={<AssignmentIndIcon />} />
+                    <CustomizedButton label="Cadastrar" size="small" variant="contained" bgColor="#4e54c8" hoverColor="#302b63" className="justify-self-end w-32" startIcon={<AssignmentIndIcon />} />
                 </Box>
             </Card>
         </Layout>

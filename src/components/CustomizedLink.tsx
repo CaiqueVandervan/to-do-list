@@ -2,7 +2,7 @@ import { styled } from "@mui/material/styles"
 import { Link, LinkProps } from "@mui/material"
 
 const CustomLink = styled(Link)(() => ({
-    color: "#c084fc",
+    color: "#9370db",
     "&.hover": {
         color: "#9333ea",
     }
