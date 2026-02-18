@@ -13,7 +13,7 @@ const CustomizedModal = ({ open, label, children }: ModalProps) => {
         <Modal
             open={open}>
             <Box className="h-[100%] w-full flex justify-center items-center">
-                <Box className="bg-white p-3 grid gap-3 rounded-[7px]">
+                <Box className="bg-white p-3 grid gap-3 rounded-[7px] min-w-80">
                     <Typography className="flex justify-center">{label}</Typography>
                     {children}
                 </Box>

@@ -4,6 +4,7 @@ import { styled } from "@mui/material/styles"
 type CustomizedTextFieldProps = TextFieldProps & {
     label: string
     topTitleColor?: string
+    topPermaColor?: string
     borderColor?: string
     hoverColor?: string
     focusColor?: string
@@ -11,12 +12,16 @@ type CustomizedTextFieldProps = TextFieldProps & {
 
 const ColorsTextField = styled(TextField)<{
     topTitleColor?: string
+    topPermaColor?: string
     borderColor?: string
     hoverColor?: string
     focusColor?: string
-}>(({ topTitleColor, borderColor, hoverColor, focusColor }) => ({
+}>(({ topTitleColor, topPermaColor, borderColor, hoverColor, focusColor }) => ({
     "& label.Mui-focused": {
         color: topTitleColor
+    },
+    "& .MuiInputLabel-root": {
+        color: topPermaColor
     },
     "& .MuiOutlinedInput-root": {
         "& fieldset": {
@@ -32,9 +37,9 @@ const ColorsTextField = styled(TextField)<{
 }
 ))
 
-const CustomizedTextField = ({ topTitleColor, borderColor, hoverColor, focusColor, label, ...props }: CustomizedTextFieldProps) => {
+const CustomizedTextField = ({ topTitleColor, topPermaColor, borderColor, hoverColor, focusColor, label, ...props }: CustomizedTextFieldProps) => {
     return (
-        <ColorsTextField topTitleColor={topTitleColor} borderColor={borderColor} hoverColor={hoverColor} focusColor={focusColor} label={label} {...props} />
+        <ColorsTextField topTitleColor={topTitleColor} topPermaColor={topPermaColor} borderColor={borderColor} hoverColor={hoverColor} focusColor={focusColor} label={label} {...props} />
     )
 }
 export default CustomizedTextField
