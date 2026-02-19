@@ -3,7 +3,7 @@ import CustomizedButton from "@/components/CustomizedButton"
 import CustomizedTextField from "@/components/CustomizedTextField";
 import CustomizedDivider from "@/components/CustomizedDivider";
 import CustomizedChip from "@/components/CustomizedChip";
-import { Card, Box, Typography, IconButton, InputAdornment, Zoom, MenuItem } from "@mui/material"
+import { Card, Box, Typography, IconButton, InputAdornment, Zoom, MenuItem, Grow } from "@mui/material"
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
@@ -39,22 +39,35 @@ const ToDoList = () => {
   const [editTask, setEditTask] = useState<string>("")
   const [concluded, setConcluded] = useState<boolean>(false)
   const [showAlert, setShowAlert] = useState<AlertState>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const maxLength = 40
 
-  useEffect(() => {
-    const getTask = async () => {
-      try {
-        const getTasks = await fetch("/api/tasks/tasks", {
-          method: "GET"
-        })
-        const resp = await getTasks.json()
-        setTaskList(resp)
-      } catch (error) {
-        console.error(error)
-      }
+  const getTask = async () => {
+    try {
+      setIsLoading(true)
+
+      await new Promise<void>((resolve) => {
+        window.setTimeout(() => {
+          resolve()
+        }, 2000)
+      })
+
+      const getTasks = await fetch("/api/tasks/tasks", {
+        method: "GET"
+      })
+      const resp = await getTasks.json()
+      setTaskList(resp)
+
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
     }
+  }
+
+  useEffect(() => {
     getTask()
-  }, [taskList])
+  }, [])
 
   const postTasks = async (task: string) => {
     if (task.trim() === "") {
@@ -79,6 +92,8 @@ const ToDoList = () => {
       const data = await novaTask.json()
       setValue("")
       setTaskList(prev => [...prev, data])
+
+      getTask()
 
       setShowAlert({
         message: (
@@ -212,11 +227,11 @@ const ToDoList = () => {
   }
 
   useEffect(() => {
-    if(!selectedTask) return
-    if(openModalEdit){
+    if (!selectedTask) return
+    if (openModalEdit) {
       setEditTask(capitalization(selectedTask.task_name)?.trim() || "")
     }
-  },[openModalEdit])
+  }, [openModalEdit])
 
   return (
     <Layout>
@@ -311,20 +326,28 @@ const ToDoList = () => {
         </Box>
 
         <Box className="mt-4 border-b-2">
+          {isLoading && (
+           <Box></Box>
+          )}
           {taskList.map(task => (
-            <Box className="h-20 flex justify-between items-center border-t-2" key={task.id}>
-              <Box className={task.concluded ? `bg-[#3b0764] h-full w-1` : `bg-[#9370db] h-full w-1`} />
-              <Typography className="flex-1 pl-2">{
-                capitalization(task.task_name)}</Typography>
-              <Box>
-                <CustomizedTooltip
-                  title="Detalhes">
-                  <IconButton onClick={(eventClick) => handleOpenMenu(eventClick, task)}>
-                    <MoreVertIcon className="text-gray-700" fontSize="small" />
-                  </IconButton>
-                </CustomizedTooltip>
+            <Grow
+              in
+              timeout={1000}
+              key={task.id}>
+              <Box className="h-20 flex justify-between items-center border-t-2">
+                <Box className={task.concluded ? `bg-[#3b0764] h-full w-1` : `bg-[#9370db] h-full w-1`} />
+                <Typography className="flex-1 pl-2">{
+                  capitalization(task.task_name)}</Typography>
+                <Box>
+                  <CustomizedTooltip
+                    title="Detalhes">
+                    <IconButton onClick={(eventClick) => handleOpenMenu(eventClick, task)}>
+                      <MoreVertIcon className="text-gray-700" fontSize="small" />
+                    </IconButton>
+                  </CustomizedTooltip>
+                </Box>
               </Box>
-            </Box>
+            </Grow>
           ))}
         </Box>
 
