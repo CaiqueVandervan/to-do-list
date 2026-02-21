@@ -19,7 +19,7 @@ const Layout = ({ children }: LayoutProps) => {
 
     return (
         <main className="h-screen grid grid-rows-3 bg-gradient-to-t from-[#0f0c29] via-[#302b63] to-[#4e54c8] ">
-            <div className="w-full h-36 grid grid-cols-3 items-center px-16 shadow-2xl
+            <header className="w-full h-36 grid grid-cols-3 items-center px-16 shadow-2xl
                 bg-gradient-to-t from-[#4e54c8] via-[#302b63] to-[#0f0c29]">
                 <div className="bg-gradient-to-r from-[#0f0c29] via-[#302b63] to-[#4e54c8] p-2 rounded-lg flex items-center shadow-lg justify-self-start">
                     <Image
@@ -28,6 +28,7 @@ const Layout = ({ children }: LayoutProps) => {
                         height={350}
                         alt="todolist_logo"
                         className="pb-2 pl-6"
+                        priority
                     />
                 </div>
                 <div className="justify-self-center w-80 h-14 rounded-lg grid grid-cols-2 bg-gradient-to-r from-[#0f0c29] via-[#302b63] to-[#4e54c8] text-white">
@@ -56,7 +57,7 @@ const Layout = ({ children }: LayoutProps) => {
                         </MenuItem>
                     </CustomizedMenu>
                 </div>
-            </div>
+            </header>
             <div className="flex items-center justify-center">
                 {children}
             </div>
