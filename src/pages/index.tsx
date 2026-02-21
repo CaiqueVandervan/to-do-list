@@ -3,7 +3,7 @@ import CustomizedButton from "@/components/CustomizedButton"
 import CustomizedTextField from "@/components/CustomizedTextField";
 import CustomizedDivider from "@/components/CustomizedDivider";
 import CustomizedChip from "@/components/CustomizedChip";
-import { Card, Box, Typography, IconButton, InputAdornment, Zoom, MenuItem, Grow } from "@mui/material"
+import { Card, Box, Typography, IconButton, InputAdornment, Zoom, MenuItem, Grow, Skeleton, Slide } from "@mui/material"
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
@@ -21,7 +21,7 @@ import CustomizedMenu from "@/components/CustomizedMenu";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CheckIcon from '@mui/icons-material/Check';
 import { Task } from "@/models/Task"
-import Alert from "@/components/Alert";
+import CustomizedAlert from "@/components/CustomizedAlert";
 
 type AlertState = {
   message: React.ReactNode
@@ -45,12 +45,6 @@ const ToDoList = () => {
   const getTask = async () => {
     try {
       setIsLoading(true)
-
-      await new Promise<void>((resolve) => {
-        window.setTimeout(() => {
-          resolve()
-        }, 2000)
-      })
 
       const getTasks = await fetch("/api/tasks/tasks", {
         method: "GET"
@@ -80,6 +74,8 @@ const ToDoList = () => {
       return
     }
     try {
+
+      setIsLoading(true)
       const novaTask = await fetch("/api/tasks/tasks", {
         method: "POST",
         headers: {
@@ -105,6 +101,8 @@ const ToDoList = () => {
         setShowAlert(null), 3000)
     } catch (error) {
       console.error("caiqewue", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -236,208 +234,228 @@ const ToDoList = () => {
   return (
     <Layout>
 
-      {showAlert && <Alert message={showAlert.message} />}
+      {showAlert && <CustomizedAlert message={showAlert.message} />}
 
-      <Card className="p-5">
+      <Slide direction="up" in mountOnEnter unmountOnExit>
 
-        <Box className="flex gap-3">
-          <CustomizedTextField className="w-60"
-            value={value}
-            onChange={(digitado) => {
-              setValue(digitado.target.value)
-            }}
-            slotProps={{
-              htmlInput: {
-                maxLength: maxLength
-              },
-              input: {
-                endAdornment: value && (<InputAdornment position="end"><IconButton onClick={() => setValue("")}
-                  size="small"><CancelIcon className="text-gray-700" fontSize="small" /></IconButton></InputAdornment>)
-              }
-            }}
-            helperText={<Typography component="span" fontSize={14} className={value.length === maxLength ? "text-[#9370db]" : "text-[#212121]"}> {value.length === maxLength ? `Limite de caracteres atingido!` : `${value.length}/${maxLength} caracteres`} </Typography>}
-            topTitleColor="#9370db"
-            hoverColor="#4a0072"
-            borderColor="#4e54c8"
-            focusColor="#4e54c8"
-            label="Digite sua nova Tarefa"
-            size="medium" />
-          <Box>
-            <CustomizedButton className="w-60 h-14"
-              bgColor="#4e54c8"
-              hoverColor="#302b63"
-              label="Adicionar"
-              variant="contained"
-              startIcon={<PostAddIcon />}
-              size="large"
-              onClick={() => postTasks(value)}
-            />
-          </Box>
-        </Box>
+        <Card className="p-5">
 
-        <CustomizedDivider
-          marginTop="1.25rem"
-          marginBottom="0.5rem"
-          color="#4e54c8" />
-
-        <Box className="flex gap-3">
-          <CustomizedChip
-            label="Todos"
-            bgColor="white"
-            hoverColor="#c084fc"
-            borderColor="#4e54c8"
-            selectedColor="#9370db"
-            selectedBorderColor="#4e54c8"
-            icon={<FormatListBulletedIcon />} />
-
-          <CustomizedChip
-            label="Pendentes"
-            bgColor="white"
-            hoverColor="#c084fc"
-            borderColor="#4e54c8"
-            selectedColor="#9370db"
-            selectedBorderColor="#4e54c8"
-            icon={<PendingActionsIcon />} />
-
-          <CustomizedChip
-            label="Concluídos"
-            bgColor="white"
-            hoverColor="#c084fc"
-            borderColor="#4e54c8"
-            selectedColor="#9370db"
-            selectedBorderColor="#4e54c8"
-            icon={<ChecklistRtlIcon />} />
-          <Box className="flex gap-1 flex-1 justify-center">
-
-            <Box className="grid gap-1">
-              <Box className="bg-[#9370db] w-7 h-4 rounded"></Box>
-              <Box className="bg-[#3b0764] w-7 h-4 rounded"></Box>
-            </Box>
-
-            <Box className="grid gap-1">
-              <Box className="flex items-center h-4">
-                <Typography fontSize={14}>Pendentes</Typography>
-              </Box>
-              <Box className="flex items-center h-4">
-                <Typography fontSize={14}>Concluídos</Typography>
-              </Box>
+          <Box className="flex gap-3">
+            <CustomizedTextField className="w-60"
+              value={value}
+              onChange={(digitado) => {
+                setValue(digitado.target.value)
+              }}
+              slotProps={{
+                htmlInput: {
+                  maxLength: maxLength
+                },
+                input: {
+                  endAdornment: value && (<InputAdornment position="end"><IconButton onClick={() => setValue("")}
+                    size="small"><CancelIcon className="text-gray-700" fontSize="small" /></IconButton></InputAdornment>)
+                }
+              }}
+              helperText={<Typography component="span" fontSize={14} className={value.length === maxLength ? "text-[#9370db]" : "text-[#212121]"}> {value.length === maxLength ? `Limite de caracteres atingido!` : `${value.length}/${maxLength} caracteres`} </Typography>}
+              topTitleColor="#9370db"
+              hoverColor="#4a0072"
+              borderColor="#4e54c8"
+              focusColor="#4e54c8"
+              label="Digite sua nova Tarefa"
+              size="medium" />
+            <Box>
+              <CustomizedButton className="w-60 h-14"
+                bgColor="#4e54c8"
+                hoverColor="#302b63"
+                label="Adicionar"
+                variant="contained"
+                startIcon={<PostAddIcon />}
+                size="large"
+                onClick={() => postTasks(value)}
+              />
             </Box>
           </Box>
-        </Box>
 
-        <Box className="mt-4 border-b-2">
-          {isLoading && (
-           <Box></Box>
-          )}
-          {taskList.map(task => (
-            <Grow
-              in
-              timeout={1000}
-              key={task.id}>
-              <Box className="h-20 flex justify-between items-center border-t-2">
-                <Box className={task.concluded ? `bg-[#3b0764] h-full w-1` : `bg-[#9370db] h-full w-1`} />
-                <Typography className="flex-1 pl-2">{
-                  capitalization(task.task_name)}</Typography>
-                <Box>
-                  <CustomizedTooltip
-                    title="Detalhes">
-                    <IconButton onClick={(eventClick) => handleOpenMenu(eventClick, task)}>
-                      <MoreVertIcon className="text-gray-700" fontSize="small" />
-                    </IconButton>
-                  </CustomizedTooltip>
+          <CustomizedDivider
+            marginTop="1.25rem"
+            marginBottom="0.5rem"
+            color="#4e54c8" />
+
+          <Box className="flex gap-3">
+            <CustomizedChip
+              label="Todos"
+              bgColor="white"
+              hoverColor="#c084fc"
+              borderColor="#4e54c8"
+              selectedColor="#9370db"
+              selectedBorderColor="#4e54c8"
+              icon={<FormatListBulletedIcon />} />
+
+            <CustomizedChip
+              label="Pendentes"
+              bgColor="white"
+              hoverColor="#c084fc"
+              borderColor="#4e54c8"
+              selectedColor="#9370db"
+              selectedBorderColor="#4e54c8"
+              icon={<PendingActionsIcon />} />
+
+            <CustomizedChip
+              label="Concluídas"
+              bgColor="white"
+              hoverColor="#c084fc"
+              borderColor="#4e54c8"
+              selectedColor="#9370db"
+              selectedBorderColor="#4e54c8"
+              icon={<ChecklistRtlIcon />} />
+            <Box className="flex gap-1 flex-1 justify-center">
+
+              <Box className="grid gap-1">
+                <Box className="bg-[#9370db] w-7 h-4 rounded"></Box>
+                <Box className="bg-[#3b0764] w-7 h-4 rounded"></Box>
+              </Box>
+
+              <Box className="grid gap-1">
+                <Box className="flex items-center h-4">
+                  <Typography fontSize={14}>Pendentes</Typography>
+                </Box>
+                <Box className="flex items-center h-4">
+                  <Typography fontSize={14}>Concluídos</Typography>
                 </Box>
               </Box>
-            </Grow>
-          ))}
-        </Box>
-
-        <CustomizedMenu
-          open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
-          elevation={10}
-          onClose={handleCloseMenu}>
-          <MenuItem onClick={handleOpenEdit}>
-            <EditIcon /> Editar
-          </MenuItem>
-          <MenuItem onClick={handleOpenDelete}>
-            <DeleteForeverIcon />Deletar
-          </MenuItem>
-          <MenuItem onClick={handleConcludedTasks}>
-            <CheckIcon />{selectedTask?.concluded ? "Desmarcar como concluído" : "Marcar como concluído"}
-          </MenuItem>
-          <CustomizedDivider color="#9370db" />
-          <MenuItem disabled>
-            <CalendarMonthIcon />
-            {selectedTask && formatDate(selectedTask.created_at)}
-          </MenuItem>
-        </CustomizedMenu>
-
-
-        <CustomizedModal open={openModalEdit} label="Editar esta tarefa?">
-          {editTask.trim() === "" && (
-            <Typography className="flex justify-center text-[#9370db]">A Tarefa não pode ter nome em branco</Typography>
-          )}
-          <CustomizedTextField className="w-full"
-            label="Editar"
-            value={editTask}
-            onChange={(e) => setEditTask(e.target.value)}
-            topTitleColor="#9370db"
-            topPermaColor="#9370db"
-            hoverColor="#4a0072"
-            borderColor="#4e54c8"
-            focusColor="#4e54c8" />
-          <Box className="flex justify-center gap-1.5">
-            <CustomizedButton label="Salvar" bgColor="#4e54c8" hoverColor="#302b63" variant="contained" size="small" onClick={() => handleEditTasks()} />
-            <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenModalEdit(false)} />
+            </Box>
           </Box>
-        </CustomizedModal>
 
-        <CustomizedModal open={openDeleteModal} label="Tem certeza que deseja excluir esta tarefa?">
-          <Box className="flex justify-center">
-            <Typography className="flex">
-              "<Typography className="text-[#9370db]">{`${selectedTask && selectedTask.task_name}`}</Typography>"
-            </Typography>
+          <Box className="mt-4 grid gap-1">
+            {/* {isLoading && (
+                <Box className="grid grid-rows-3 gap-1">
+                  <Box className="flex w-full gap-1">
+                    <Skeleton variant="rounded" height={"80px"} width={5} />
+                    <Skeleton variant="rounded" height={"80px"} width={"100%"} />
+                  </Box>
+                  <Box className="flex w-full gap-1">
+                    <Skeleton variant="rounded" height={"80px"} width={5} />
+                    <Skeleton variant="rounded" height={"80px"} width={"100%"} />
+                  </Box>
+                  <Box className="flex w-full gap-1">
+                    <Skeleton variant="rounded" height={"80px"} width={5} />
+                    <Skeleton variant="rounded" height={"80px"} width={"100%"} />
+                  </Box>
+                </Box>
+              )} */}
+
+            {taskList.map(task => (
+              <Grow
+                in={isLoading ? false : true}
+                timeout={1800}
+                key={task.id}>
+                <Box className="bg-gradient-to-r from-[#9370db] to-gray-200 rounded-lg p-[2px]">
+
+                  <Box className="h-[78px] flex justify-between items-center bg-white rounded-lg ">
+                    <Typography className="pl-3">{
+                      capitalization(task.task_name)}
+                    </Typography>
+                    <CustomizedTooltip
+                      title="Detalhes">
+                      <IconButton onClick={(eventClick) => handleOpenMenu(eventClick, task)}>
+                        <MoreVertIcon className="text-gray-700" fontSize="small" />
+                      </IconButton>
+                    </CustomizedTooltip>
+                  </Box>
+                </Box>
+              </Grow>
+            ))}
           </Box>
-          <Box className="flex justify-center gap-1.5">
-            <CustomizedButton label="Sim" bgColor="#4e54c8" hoverColor="#4a0072" variant="contained" size="small" onClick={() => handleCloseDelete()} />
-            <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenDeleteModal(false)} />
+
+          <CustomizedMenu
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            elevation={10}
+            onClose={handleCloseMenu}>
+            <MenuItem onClick={handleOpenEdit}>
+              <EditIcon /> Editar
+            </MenuItem>
+            <MenuItem onClick={handleOpenDelete}>
+              <DeleteForeverIcon />Deletar
+            </MenuItem>
+            <MenuItem onClick={handleConcludedTasks}>
+              <CheckIcon />{selectedTask?.concluded ? "Desmarcar como concluído" : "Marcar como concluído"}
+            </MenuItem>
+            <CustomizedDivider color="#9370db" />
+            <MenuItem disabled>
+              <CalendarMonthIcon />
+              {selectedTask && formatDate(selectedTask.created_at)}
+            </MenuItem>
+          </CustomizedMenu>
+
+
+          <CustomizedModal open={openModalEdit} label="Editar esta tarefa?">
+            {editTask.trim() === "" && (
+              <Typography className="flex justify-center text-[#9370db]">A Tarefa não pode ter nome em branco</Typography>
+            )}
+            <CustomizedTextField className="w-full"
+              label="Editar"
+              value={editTask}
+              onChange={(e) => setEditTask(e.target.value)}
+              topTitleColor="#9370db"
+              topPermaColor="#9370db"
+              hoverColor="#4a0072"
+              borderColor="#4e54c8"
+              focusColor="#4e54c8" />
+            <Box className="flex justify-center gap-1.5">
+              <CustomizedButton label="Salvar" bgColor="#4e54c8" hoverColor="#302b63" variant="contained" size="small" onClick={() => handleEditTasks()} />
+              <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenModalEdit(false)} />
+            </Box>
+          </CustomizedModal>
+
+          <CustomizedModal open={openDeleteModal} label="Tem certeza que deseja excluir esta tarefa?">
+            <Box className="flex justify-center">
+              <Typography className="flex">
+                "<Typography className="text-[#9370db]">{`${selectedTask && selectedTask.task_name}`}</Typography>"
+              </Typography>
+            </Box>
+            <Box className="flex justify-center gap-1.5">
+              <CustomizedButton label="Sim" bgColor="#4e54c8" hoverColor="#4a0072" variant="contained" size="small" onClick={() => handleCloseDelete()} />
+              <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenDeleteModal(false)} />
+            </Box>
+          </CustomizedModal>
+
+          <CustomizedModal open={openDeleteTasksModal} label="Tem certeza que deseja excluir todas as tarefas concluídas?">
+            <Box className="flex justify-center gap-1.5">
+              <CustomizedButton label="Sim" bgColor="#4e54c8" hoverColor="#4a0072" variant="contained" size="small" onClick={handleCloseDeleteTasks} />
+              <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={handleCloseDeleteTasks} />
+            </Box>
+          </CustomizedModal>
+
+          <Box className="flex justify-between mt-5">
+            <Box className="flex gap-1.5 items-center">
+              <DoneAllIcon className="text-gray-700" fontSize="small" />
+              <Typography fontSize={14}>Tarefas concluídas (3/3)</Typography>
+            </Box>
+            <Box>
+              <CustomizedButton
+                bgColor="#4e54c8"
+                hoverColor="#302b63"
+                label="Limpar tarefas concluídas"
+                variant="contained"
+                startIcon={<DeleteForeverIcon />}
+                size="small"
+                onClick={handleOpenDeleteTasks} />
+            </Box>
           </Box>
-        </CustomizedModal>
 
-        <CustomizedModal open={openDeleteTasksModal} label="Tem certeza que deseja excluir todas as tarefas concluídas?">
-          <Box className="flex justify-center gap-1.5">
-            <CustomizedButton label="Sim" bgColor="#4e54c8" hoverColor="#4a0072" variant="contained" size="small" onClick={handleCloseDeleteTasks} />
-            <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={handleCloseDeleteTasks} />
+          <Box className="mt-4 h-2 bg-slate-200 rounded">
+            <Box className="bg-[#9370db] h-full w-[50%] rounded" />
           </Box>
-        </CustomizedModal>
 
-        <Box className="flex justify-between mt-5">
-          <Box className="flex gap-1.5 items-center">
-            <DoneAllIcon className="text-gray-700" fontSize="small" />
-            <Typography fontSize={14}>Tarefas concluídas (3/3)</Typography>
+          <Box className="mt-3 flex items-center justify-end gap-1">
+            <BarChartIcon className="text-gray-700" fontSize="small" />
+            <Typography fontSize={14}>{`Total de Tarefas: ${taskList.length}`}</Typography>
           </Box>
-          <Box>
-            <CustomizedButton
-              bgColor="#4e54c8"
-              hoverColor="#302b63"
-              label="Limpar tarefas concluídas"
-              variant="contained"
-              startIcon={<DeleteForeverIcon />}
-              size="small"
-              onClick={handleOpenDeleteTasks} />
-          </Box>
-        </Box>
 
-        <Box className="mt-4 h-2 bg-slate-200 rounded">
-          <Box className="bg-[#9370db] h-full w-[50%] rounded" />
-        </Box>
+        </Card>
 
-        <Box className="mt-3 flex items-center justify-end gap-1">
-          <BarChartIcon className="text-gray-700" fontSize="small" />
-          <Typography fontSize={14}>{`Total de Tarefas: ${taskList.length}`}</Typography>
-        </Box>
+      </Slide>
 
-      </Card>
     </Layout>
   )
 }
