@@ -1,5 +1,5 @@
-import {Button, ButtonProps} from "@mui/material"
-import {styled} from "@mui/material/styles"
+import { Button, ButtonProps } from "@mui/material"
+import { styled } from "@mui/material/styles"
 
 type CustomizedButtonProps = ButtonProps & {
     label: string
@@ -10,20 +10,23 @@ type CustomizedButtonProps = ButtonProps & {
 const ColorsButton = styled(Button)<{
     bgColor?: string
     hoverColor?: string
-}>(({theme, bgColor, hoverColor}) => {
+}>(({ theme, bgColor, hoverColor }) => {
     const baseColor = bgColor ?? theme.palette.primary.main
-    return{
+    return {
         color: theme.palette.getContrastText(baseColor),
         backgroundColor: baseColor,
         "&:hover": {
             backgroundColor: hoverColor ?? baseColor
+        },
+        "&.Mui-disabled": {
+            backgroundColor: "#ede9fe",
         }
     }
 })
 
-const CustomizedButton = ({label, bgColor, hoverColor, ...props}: CustomizedButtonProps ) => {
+const CustomizedButton = ({ label, bgColor, hoverColor, ...props }: CustomizedButtonProps) => {
 
-    return(
+    return (
         <ColorsButton bgColor={bgColor} hoverColor={hoverColor} {...props}>{label}</ColorsButton>
     )
 }
