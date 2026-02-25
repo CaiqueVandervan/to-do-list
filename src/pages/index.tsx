@@ -37,7 +37,6 @@ const ToDoList = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedTask, setSelectedTask] = useState<Task>()
   const [editTask, setEditTask] = useState<string>("")
-  const [concluded, setConcluded] = useState<boolean>(false)
   const [showAlert, setShowAlert] = useState<AlertState>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [deletingTask, setDeletingTask] = useState<number | null>(null)
@@ -90,9 +89,6 @@ const ToDoList = () => {
         )
       })
 
-      setTimeout(() =>
-        setShowAlert(null), 3000)
-
     } catch (error) {
       console.error("caiqewue", error)
     } finally {
@@ -123,9 +119,6 @@ const ToDoList = () => {
             "</Typography>
         )
       })
-
-      setTimeout(() =>
-        setShowAlert(null), 3000)
 
     } catch (error) {
       console.warn("NãO FOIU", error)
@@ -160,15 +153,12 @@ const ToDoList = () => {
         </Typography>
       )
     })
-
-    setTimeout(() =>
-      setShowAlert(null), 3000)
   }
 
   const concluingTasks = async (id: number, concluing: boolean) => {
     try {
       await fetch(`/api/tasks/${id}`, {
-        method: "CONCLUDED",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
@@ -176,8 +166,17 @@ const ToDoList = () => {
           concluded: concluing
         })
       })
-      if (!selectedTask) return
-      setTaskList(prev => prev.map(task => task.id === selectedTask.id ? { ...task, concluded: concluded } : task))
+
+      setTaskList(prev => prev.map(task => task.id === id ? { ...task, concluded: concluing } : task))
+
+      setShowAlert({
+        message: (
+          <Typography className="flex">
+            Tarefa " <Typography className="text-[#9370db]">{selectedTask?.task_name}</Typography> " {selectedTask?.concluded ? "esta pendente novamente!" : "marcada como concluída com sucesso!"}
+          </Typography>
+        )
+      })
+
     } catch (error) {
       console.warn(error)
     }
@@ -185,8 +184,8 @@ const ToDoList = () => {
 
   const handleConcludedTasks = async () => {
     if (!selectedTask) return
-    await concluingTasks(selectedTask.id, concluded)
-    setConcluded(true)
+    await concluingTasks(selectedTask.id, !selectedTask.concluded)
+    setAnchorEl(null)
   }
 
   const handleOpenEdit = () => {
@@ -238,6 +237,13 @@ const ToDoList = () => {
       setEditTask(capitalization(selectedTask.task_name)?.trim() || "")
     }
   }, [openModalEdit])
+
+useEffect(() => {
+  const timer = setTimeout(() => 
+  setShowAlert(null), 3000)
+
+  return () => clearTimeout(timer)
+}, [showAlert])
 
   return (
     <Layout>
@@ -334,7 +340,7 @@ const ToDoList = () => {
             </Box>
           </Box>
 
-          <Box className="mt-4 grid gap-1">
+          <Box className="mt-4 grid gap-1 max-h-[255px] overflow-y-auto customized-scrollbar pr-1">
             {/* {isLoading && (
                 <Box className="grid grid-rows-3 gap-1">
                   <Box className="flex w-full gap-1">
@@ -361,7 +367,7 @@ const ToDoList = () => {
                   setTaskList(prev => prev.filter(t => t.id !== task.id))
                   setDeletingTask(null)
                 }}>
-                <Box className="bg-gradient-to-r from-[#9370db] to-gray-200 rounded-lg p-[2px]">
+                <Box className={task.concluded ? "bg-gradient-to-r from-gray-200 via-[#3b0764] to-[#3b0764] rounded-lg p-[2px]" : "bg-gradient-to-r from-[#9370db] via-[#9370db] to-gray-200 rounded-lg p-[2px]"}>
 
                   <Box className="h-[78px] flex justify-between items-center bg-white rounded-lg ">
                     <Typography className="pl-3">{
@@ -420,7 +426,7 @@ const ToDoList = () => {
                 hoverColor="#302b63"
                 variant="contained"
                 size="small"
-                disabled={editTask.trim() === "" || editTask === selectedTask?.task_name}
+                disabled={editTask.trim() === "" || editTask.trim().toLowerCase() === selectedTask?.task_name.trim().toLowerCase()}
                 onClick={() => handleEditTasks()} />
               <CustomizedButton
                 label="Cancelar"
@@ -455,7 +461,7 @@ const ToDoList = () => {
           <Box className="flex justify-between mt-5">
             <Box className="flex gap-1.5 items-center">
               <DoneAllIcon className="text-gray-700" fontSize="small" />
-              <Typography fontSize={14}>Tarefas concluídas (3/3)</Typography>
+              <Typography fontSize={14}>{`Tarefas concluídas (${taskList.filter(task => task.concluded === true).length}/${taskList.length})`}</Typography>
             </Box>
             <Box>
               <CustomizedButton

@@ -6,3 +6,26 @@ html, body {
     overflow-x: hidden;
     overflow-y: hidden;
 }
+
+.customized-scrollbar::-webkit-scrollbar {
+width: 14px;
+}
+
+.customized-scrollbar::-webkit-scrollbar-track{
+    background: #ede9fe;
+    border-radius: 50px;
+    box-shadow: 0 0 5px;
+}
+
+.customized-scrollbar::-webkit-scrollbar-thumb{
+    background-color: #8b8fe3;
+    border-radius: 50px;
+    border: 2px solid #ede9fe;
+}
+
+.customized-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #4e54c8;
+}
+
+
+

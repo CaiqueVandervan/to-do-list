@@ -1,18 +1,6 @@
 import { dataBase } from "@/lib/dataBase";
 import { NextApiRequest, NextApiResponse } from "next";
 
-export async function deleteTasks(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === "DELETE") {
-        try {
-            const { id } = req.query
-            const [resp] = await dataBase.query("DELETE FROM todolist WHERE id = ?", [id])
-            res.status(200).json(resp)
-        } catch (error) {
-            return res.status(500).json(error)
-        }
-    }
-}
-
 export async function editTasks(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === "PUT") {
         try {
@@ -30,14 +18,14 @@ export async function editTasks(req: NextApiRequest, res: NextApiResponse) {
 export async function concludedTasks(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === "PUT") {
         try {
-            const {id} = req.query
+            const { id } = req.query
             const idNumber = Number(id)
-            const {task_name, concluded} = req.body
+            const { task_name, concluded } = req.body
 
             const fields: string[] = []
             const values = []
 
-            
+
 
             const resp = await dataBase.query("UPDATE tasks SET concluded = ? WHERE id = ?", [concluded, idNumber])
             res.status(200).json(resp)
@@ -48,11 +36,41 @@ export async function concludedTasks(req: NextApiRequest, res: NextApiResponse) 
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
+    const { id } = req.query
+    const idNum = Number(id)
+
     if (req.method === "DELETE") {
-        await deleteTasks(req, res)
+        try {
+            const [resp] = await dataBase.query("DELETE FROM todolist WHERE id = ?", [idNum])
+            res.status(200).json(resp)
+        } catch (error) {
+            res.status(500).json(error)
+        }
     }
+
+
     if (req.method === "PUT") {
-        await editTasks(req, res)
-        await concludedTasks(req, res)
+        try {
+            const { task_name, concluded } = req.body
+
+            const fields: string[] = []
+            const values: any[] = []
+
+            if (typeof task_name === "string") {
+                fields.push("task_name = ?")
+                values.push(task_name)
+            }
+            if (typeof concluded === "boolean") {
+                fields.push("concluded = ?")
+                values.push(concluded)
+            }
+            values.push(idNum)
+            const [resp] = await dataBase.query(`UPDATE todolist SET ${fields.join(", ")} WHERE id = ?`, values)
+            res.status(200).json(resp)
+
+        } catch (error) {
+            res.status(500).json(error)
+        }
     }
 }
