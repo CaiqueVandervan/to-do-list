@@ -40,6 +40,7 @@ const ToDoList = () => {
   const [concluded, setConcluded] = useState<boolean>(false)
   const [showAlert, setShowAlert] = useState<AlertState>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [deletingTask, setDeletingTask] = useState<number | null>(null)
   const maxLength = 40
 
   const getTask = async () => {
@@ -64,18 +65,10 @@ const ToDoList = () => {
   }, [])
 
   const postTasks = async (task: string) => {
-    if (task.trim() === "") {
-      setShowAlert({
-        message: (
-          <Typography>Digite sua Tarefa para adicionar</Typography>
-        )
-      })
-      setTimeout(() => setShowAlert(null), 3000)
-      return
-    }
     try {
 
       setIsLoading(true)
+
       const novaTask = await fetch("/api/tasks/tasks", {
         method: "POST",
         headers: {
@@ -99,6 +92,7 @@ const ToDoList = () => {
 
       setTimeout(() =>
         setShowAlert(null), 3000)
+
     } catch (error) {
       console.error("caiqewue", error)
     } finally {
@@ -119,6 +113,20 @@ const ToDoList = () => {
       })
       if (!selectedTask) return
       setTaskList(prev => prev.map(task => task.id === selectedTask.id ? { ...task, task_name: editTask } : task))
+
+      setShowAlert({
+        message: (
+          <Typography className="flex">A Tarefa "
+            <Typography className="text-[#9370db]">{selectedTask?.task_name}</Typography>
+            " foi editada para "
+            <Typography className="text-[#9370db]">{editTask}</Typography>
+            "</Typography>
+        )
+      })
+
+      setTimeout(() =>
+        setShowAlert(null), 3000)
+
     } catch (error) {
       console.warn("NãO FOIU", error)
     }
@@ -134,7 +142,7 @@ const ToDoList = () => {
     await fetch(`/api/tasks/${id}`, {
       method: "DELETE",
     })
-    setTaskList(prev => prev.filter(task => task.id !== id))
+    setDeletingTask(id)
   }
 
   const handleCloseDelete = async () => {
@@ -271,6 +279,7 @@ const ToDoList = () => {
                 startIcon={<PostAddIcon />}
                 size="large"
                 onClick={() => postTasks(value)}
+                disabled={!value.trim()}
               />
             </Box>
           </Box>
@@ -345,9 +354,13 @@ const ToDoList = () => {
 
             {taskList.map(task => (
               <Grow
-                in={isLoading ? false : true}
-                timeout={1800}
-                key={task.id}>
+                in={deletingTask !== task.id}
+                timeout={1500}
+                key={task.id}
+                onExited={() => {
+                  setTaskList(prev => prev.filter(t => t.id !== task.id))
+                  setDeletingTask(null)
+                }}>
                 <Box className="bg-gradient-to-r from-[#9370db] to-gray-200 rounded-lg p-[2px]">
 
                   <Box className="h-[78px] flex justify-between items-center bg-white rounded-lg ">
@@ -389,9 +402,7 @@ const ToDoList = () => {
 
 
           <CustomizedModal open={openModalEdit} label="Editar esta tarefa?">
-            {editTask.trim() === "" && (
-              <Typography className="flex justify-center text-[#9370db]">A Tarefa não pode ter nome em branco</Typography>
-            )}
+
             <CustomizedTextField className="w-full"
               label="Editar"
               value={editTask}
@@ -401,10 +412,25 @@ const ToDoList = () => {
               hoverColor="#4a0072"
               borderColor="#4e54c8"
               focusColor="#4e54c8" />
+
             <Box className="flex justify-center gap-1.5">
-              <CustomizedButton label="Salvar" bgColor="#4e54c8" hoverColor="#302b63" variant="contained" size="small" onClick={() => handleEditTasks()} />
-              <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenModalEdit(false)} />
+              <CustomizedButton
+                label="Salvar"
+                bgColor="#4e54c8"
+                hoverColor="#302b63"
+                variant="contained"
+                size="small"
+                disabled={editTask.trim() === "" || editTask === selectedTask?.task_name}
+                onClick={() => handleEditTasks()} />
+              <CustomizedButton
+                label="Cancelar"
+                bgColor="#9370db"
+                hoverColor="#ce93d8"
+                variant="contained"
+                size="small"
+                onClick={() => setOpenModalEdit(false)} />
             </Box>
+
           </CustomizedModal>
 
           <CustomizedModal open={openDeleteModal} label="Tem certeza que deseja excluir esta tarefa?">

@@ -32,8 +32,8 @@ const Layout = ({ children }: LayoutProps) => {
                     />
                 </div>
                 <div className="justify-self-center w-80 h-14 rounded-lg grid grid-cols-2 bg-gradient-to-r from-[#0f0c29] via-[#302b63] to-[#4e54c8] text-white">
-                   <button className="text-xl">Tarefas</button>
-                   <button className="text-xl">Histórico</button>
+                    <button className="text-xl">Tarefas</button>
+                    <button className="text-xl">Histórico</button>
                 </div>
                 <div className="h-20 flex items-center w-28 justify-center justify-self-end rounded-lg bg-gradient-to-r from-[#0f0c29] via-[#302b63] to-[#4e54c8]">
                     <Avatar className="bg-gradient-to-r from-[#ffffff] to-[#4e54c8]">
