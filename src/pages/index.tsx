@@ -22,6 +22,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import CheckIcon from '@mui/icons-material/Check';
 import { Task } from "@/models/Task"
 import CustomizedAlert from "@/components/CustomizedAlert";
+import BlurText from "@/components/BlurText";
 
 type AlertState = {
   message: React.ReactNode
@@ -40,6 +41,7 @@ const ToDoList = () => {
   const [showAlert, setShowAlert] = useState<AlertState>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [deletingTask, setDeletingTask] = useState<number | null>(null)
+  const [openSlide, setOpenSlide] = useState<boolean>(false)
   const maxLength = 40
 
   const getTask = async () => {
@@ -238,19 +240,29 @@ const ToDoList = () => {
     }
   }, [openModalEdit])
 
-useEffect(() => {
-  const timer = setTimeout(() => 
-  setShowAlert(null), 3000)
+  useEffect(() => {
+    const timer = setTimeout(() =>
+      setShowAlert(null), 3000)
 
-  return () => clearTimeout(timer)
-}, [showAlert])
+    return () =>
+      clearTimeout(timer)
+
+  }, [showAlert])
+
+  useEffect(() => {
+    const timer = setTimeout(() =>
+      setOpenSlide(true), 500)
+
+    return () =>
+      clearTimeout(timer)
+  }, [openSlide])
 
   return (
     <Layout>
 
       {showAlert && <CustomizedAlert message={showAlert.message} />}
 
-      <Slide direction="up" in mountOnEnter unmountOnExit>
+      <Slide direction="up" in={openSlide} mountOnEnter unmountOnExit>
 
         <Card className="p-5">
 
@@ -340,7 +352,7 @@ useEffect(() => {
             </Box>
           </Box>
 
-          <Box className="mt-4 grid gap-1 max-h-[255px] overflow-y-auto customized-scrollbar pr-1">
+          <Box className="mt-4 grid gap-1 max-h-[255px] overflow-y-auto customized-scrollbar pr-1.5 drop-shadow-md">
             {/* {isLoading && (
                 <Box className="grid grid-rows-3 gap-1">
                   <Box className="flex w-full gap-1">
@@ -367,12 +379,16 @@ useEffect(() => {
                   setTaskList(prev => prev.filter(t => t.id !== task.id))
                   setDeletingTask(null)
                 }}>
-                <Box className={task.concluded ? "bg-gradient-to-r from-gray-200 via-[#3b0764] to-[#3b0764] rounded-lg p-[2px]" : "bg-gradient-to-r from-[#9370db] via-[#9370db] to-gray-200 rounded-lg p-[2px]"}>
+                <Box className={task.concluded ? "bg-gradient-to-l from-gray-200 via-[#3b0764] to-[#3b0764] rounded-lg p-[2px]" : "bg-gradient-to-l from-[#9370db] via-[#9370db] to-gray-200 rounded-lg p-[2px]"}>
 
-                  <Box className="h-[78px] flex justify-between items-center bg-white rounded-lg ">
-                    <Typography className="pl-3">{
-                      capitalization(task.task_name)}
-                    </Typography>
+                  <Box className={`h-[78px] flex justify-between items-center rounded-lg ${task.concluded ? "bg-gradient-to-r from-white to-[#b591e0]" : "bg-gradient-to-r from-[#f0ebfe] to-white"}`}>
+                    <BlurText
+                      text={capitalization(task.task_name)}
+                      delay={50}
+                      animateBy="letters"
+                      direction="top"
+                      className="pl-3"
+                    />
                     <CustomizedTooltip
                       title="Detalhes">
                       <IconButton onClick={(eventClick) => handleOpenMenu(eventClick, task)}>
@@ -442,7 +458,7 @@ useEffect(() => {
           <CustomizedModal open={openDeleteModal} label="Tem certeza que deseja excluir esta tarefa?">
             <Box className="flex justify-center">
               <Typography className="flex">
-                "<Typography className="text-[#9370db]">{`${selectedTask && selectedTask.task_name}`}</Typography>"
+                "<Typography className="text-[#9370db]">{`${selectedTask && capitalization(selectedTask.task_name)}`}</Typography>"
               </Typography>
             </Box>
             <Box className="flex justify-center gap-1.5">
