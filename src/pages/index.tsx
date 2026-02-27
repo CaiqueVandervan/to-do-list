@@ -23,6 +23,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import { Task } from "@/models/Task"
 import CustomizedAlert from "@/components/CustomizedAlert";
 import BlurText from "@/components/BlurText";
+import ShinyText from "@/components/ShinyText";
 
 type AlertState = {
   message: React.ReactNode
@@ -87,7 +88,25 @@ const ToDoList = () => {
 
       setShowAlert({
         message: (
-          <Typography className="flex">Tarefa "<Typography className="text-[#9370db]">{value}</Typography>" adicionada com sucesso</Typography>
+          <Box className="flex">
+            <ShinyText text={`A Tarefa "`}
+              speed={3}
+              color="white"
+              shineColor="#9370db"
+              spread={160}
+              direction="left"
+            />
+            <Typography className="text-[#9370db]">
+              {value}
+            </Typography>
+            <ShinyText text={`" foi adicionada com sucesso!`}
+              speed={3}
+              color="white"
+              shineColor="#9370db"
+              spread={160}
+              direction="left"
+            />
+          </Box>
         )
       })
 
@@ -118,7 +137,7 @@ const ToDoList = () => {
             <Typography className="text-[#9370db]">{selectedTask?.task_name}</Typography>
             " foi editada para "
             <Typography className="text-[#9370db]">{editTask}</Typography>
-            "</Typography>
+            ".</Typography>
         )
       })
 
@@ -174,7 +193,7 @@ const ToDoList = () => {
       setShowAlert({
         message: (
           <Typography className="flex">
-            Tarefa " <Typography className="text-[#9370db]">{selectedTask?.task_name}</Typography> " {selectedTask?.concluded ? "esta pendente novamente!" : "marcada como concluída com sucesso!"}
+            Tarefa " <Typography className="text-[#9370db]">{selectedTask?.task_name}</Typography> " {selectedTask?.concluded ? "esta pendente novamente." : "marcada como concluída."}
           </Typography>
         )
       })
@@ -242,15 +261,6 @@ const ToDoList = () => {
 
   useEffect(() => {
     const timer = setTimeout(() =>
-      setShowAlert(null), 3000)
-
-    return () =>
-      clearTimeout(timer)
-
-  }, [showAlert])
-
-  useEffect(() => {
-    const timer = setTimeout(() =>
       setOpenSlide(true), 500)
 
     return () =>
@@ -260,7 +270,7 @@ const ToDoList = () => {
   return (
     <Layout>
 
-      {showAlert && <CustomizedAlert message={showAlert.message} />}
+      {showAlert && <CustomizedAlert message={showAlert.message} duration={4000} onClose={() => setShowAlert(null)} />}
 
       <Slide direction="up" in={openSlide} mountOnEnter unmountOnExit>
 
@@ -369,36 +379,48 @@ const ToDoList = () => {
                   </Box>
                 </Box>
               )} */}
-
-            {taskList.map(task => (
-              <Grow
-                in={deletingTask !== task.id}
-                timeout={1500}
-                key={task.id}
-                onExited={() => {
-                  setTaskList(prev => prev.filter(t => t.id !== task.id))
-                  setDeletingTask(null)
-                }}>
-                <Box className={task.concluded ? "bg-gradient-to-l from-gray-200 via-[#3b0764] to-[#3b0764] rounded-lg p-[2px]" : "bg-gradient-to-l from-[#9370db] via-[#9370db] to-gray-200 rounded-lg p-[2px]"}>
-
-                  <Box className={`h-[78px] flex justify-between items-center rounded-lg ${task.concluded ? "bg-gradient-to-r from-white to-[#b591e0]" : "bg-gradient-to-r from-[#f0ebfe] to-white"}`}>
-                    <BlurText
-                      text={capitalization(task.task_name)}
-                      delay={50}
-                      animateBy="letters"
-                      direction="top"
-                      className="pl-3"
-                    />
-                    <CustomizedTooltip
-                      title="Detalhes">
-                      <IconButton onClick={(eventClick) => handleOpenMenu(eventClick, task)}>
-                        <MoreVertIcon className="text-gray-700" fontSize="small" />
-                      </IconButton>
-                    </CustomizedTooltip>
+            {taskList.length === 0 ?
+              <Box className="flex justify-center">
+                <Grow
+                  in
+                  timeout={1500}>
+                  <Box className="p-[2px] rounded-lg bg-gradient-to-r from-[#9370db] via-[#6a3fa0] to-[#3b0764]">
+                    <Box className="grid items-center h-[78px] p-4 rounded-lg bg-[#ede9fe]">
+                      <Typography className="flex justify-center opacity-80">Não há Tarefas em sua Lista.</Typography>
+                      <Typography className="flex justify-center opacity-80">Adicione uma Tarefa para começar!</Typography>
+                    </Box>
                   </Box>
-                </Box>
-              </Grow>
-            ))}
+                </Grow>
+              </Box>
+              : taskList.map(task => (
+                <Grow
+                  in={deletingTask !== task.id}
+                  timeout={1500}
+                  key={task.id}
+                  onExited={() => {
+                    setTaskList(prev => prev.filter(t => t.id !== task.id))
+                    setDeletingTask(null)
+                  }}>
+                  <Box className={task.concluded ? "bg-gradient-to-l from-gray-200 via-[#3b0764] to-[#3b0764] rounded-lg p-[2px]" : "bg-gradient-to-l from-[#9370db] via-[#9370db] to-gray-200 rounded-lg p-[2px]"}>
+
+                    <Box className={`h-[78px] flex justify-between items-center rounded-lg ${task.concluded ? "bg-gradient-to-r from-white to-[#b591e0]" : "bg-gradient-to-r from-[#f0ebfe] to-white"}`}>
+                      <BlurText
+                        text={capitalization(task.task_name)}
+                        delay={70}
+                        animateBy="letters"
+                        direction="top"
+                        className="pl-3"
+                      />
+                      <CustomizedTooltip
+                        title="Detalhes">
+                        <IconButton onClick={(eventClick) => handleOpenMenu(eventClick, task)}>
+                          <MoreVertIcon className="text-gray-700" fontSize="small" />
+                        </IconButton>
+                      </CustomizedTooltip>
+                    </Box>
+                  </Box>
+                </Grow>
+              ))}
           </Box>
 
           <CustomizedMenu
