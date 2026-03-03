@@ -3,7 +3,7 @@ import CustomizedButton from "@/components/CustomizedButton"
 import CustomizedTextField from "@/components/CustomizedTextField";
 import CustomizedDivider from "@/components/CustomizedDivider";
 import CustomizedChip from "@/components/CustomizedChip";
-import { Card, Box, Typography, IconButton, InputAdornment, Zoom, MenuItem, Grow, Skeleton, Slide } from "@mui/material"
+import { Card, Box, Typography, IconButton, InputAdornment, MenuItem, Grow, Skeleton, Slide } from "@mui/material"
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
@@ -12,7 +12,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import CancelIcon from "@mui/icons-material/Cancel";
 import CustomizedModal from "@/components/CustomizedModal"
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -40,20 +40,24 @@ const ToDoList = () => {
   const [selectedTask, setSelectedTask] = useState<Task>()
   const [editTask, setEditTask] = useState<string>("")
   const [showAlert, setShowAlert] = useState<AlertState>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [deletingTask, setDeletingTask] = useState<number | null>(null)
   const [openSlide, setOpenSlide] = useState<boolean>(false)
   const maxLength = 40
 
   const getTask = async () => {
     try {
-      setIsLoading(true)
 
       const getTasks = await fetch("/api/tasks/tasks", {
         method: "GET"
       })
       const resp = await getTasks.json()
-      setTaskList(resp)
+      setTaskList(resp.map((data: Task) => ({
+        ...data,
+        concluded: Boolean(data.concluded)
+      })
+
+      ))
 
     } catch (error) {
       console.error(error)
@@ -62,14 +66,8 @@ const ToDoList = () => {
     }
   }
 
-  useEffect(() => {
-    getTask()
-  }, [])
-
   const postTasks = async (task: string) => {
     try {
-
-      setIsLoading(true)
 
       const novaTask = await fetch("/api/tasks/tasks", {
         method: "POST",
@@ -97,7 +95,7 @@ const ToDoList = () => {
               direction="left"
             />
             <Typography className="text-[#9370db]">
-              {value}
+              {capitalization(value)}
             </Typography>
             <ShinyText text={`" foi adicionada com sucesso!`}
               speed={3}
@@ -112,8 +110,6 @@ const ToDoList = () => {
 
     } catch (error) {
       console.error("caiqewue", error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -133,11 +129,28 @@ const ToDoList = () => {
 
       setShowAlert({
         message: (
-          <Typography className="flex">A Tarefa "
-            <Typography className="text-[#9370db]">{selectedTask?.task_name}</Typography>
-            " foi editada para "
-            <Typography className="text-[#9370db]">{editTask}</Typography>
-            ".</Typography>
+          <Box className="flex">
+            <ShinyText text={`A Tarefa "`}
+              speed={3}
+              color="white"
+              shineColor="#9370db"
+              spread={160}
+              direction="left" />
+            <Typography className="text-[#9370db]">{capitalization(selectedTask.task_name)}</Typography>
+            <ShinyText text={`" foi editada para "`}
+              speed={3}
+              color="white"
+              shineColor="#9370db"
+              spread={160}
+              direction="left" />
+            <Typography className="text-[#9370db]">{capitalization(editTask)}</Typography>
+            <ShinyText text={`".`}
+              speed={3}
+              color="white"
+              shineColor="#9370db"
+              spread={160}
+              direction="left" />
+          </Box>
         )
       })
 
@@ -167,13 +180,35 @@ const ToDoList = () => {
 
     setShowAlert({
       message: (
-        <Typography className="flex">
-          Tarefa "
-          <Typography className="text-[#9370db]">{selectedTask.task_name}</Typography>
-          " deletada com sucesso.
-        </Typography>
+        <Box className="flex">
+          <ShinyText text={`Tarefa "`}
+            speed={3}
+            color="white"
+            shineColor="#9370db"
+            spread={160}
+            direction="left" />
+          <Typography className="text-[#9370db]">{capitalization(selectedTask.task_name)}</Typography>
+          <ShinyText text={`" deletada com sucesso!`}
+            speed={3}
+            color="white"
+            shineColor="#9370db"
+            spread={160}
+            direction="left" />
+        </Box>
       )
     })
+  }
+
+  const deleteAllConcludedTasks = async () => {
+    await fetch("/api/tasks/tasks", {
+      method: "DELETE"
+    })
+    setTaskList(prev => prev.filter(task => task.concluded === false))
+  }
+
+  const handleDeleteAllConcludedTasks = async () => {
+    await deleteAllConcludedTasks()
+    setOpenDeleteTasksModal(false)
   }
 
   const concluingTasks = async (id: number, concluing: boolean) => {
@@ -192,9 +227,31 @@ const ToDoList = () => {
 
       setShowAlert({
         message: (
-          <Typography className="flex">
-            Tarefa " <Typography className="text-[#9370db]">{selectedTask?.task_name}</Typography> " {selectedTask?.concluded ? "esta pendente novamente." : "marcada como concluída."}
-          </Typography>
+          <Box className="flex">
+            <ShinyText text={`Tarefa "`}
+              speed={3}
+              color="white"
+              shineColor="#9370db"
+              spread={160}
+              direction="left" />
+            <Typography className="text-[#9370db]">
+              {selectedTask?.task_name}
+            </Typography>
+
+            {selectedTask?.concluded ?
+              <ShinyText text={`" esta pendente novamente.`}
+                speed={3}
+                color="white"
+                shineColor="#9370db"
+                spread={160}
+                direction="left" />
+              : <ShinyText text={`" marcada como concluída.`}
+                speed={3}
+                color="white"
+                shineColor="#9370db"
+                spread={160}
+                direction="left" />}
+          </Box>
         )
       })
 
@@ -223,10 +280,6 @@ const ToDoList = () => {
     setOpenDeleteTasksModal(true)
   }
 
-  const handleCloseDeleteTasks = () => {
-    setOpenDeleteTasksModal(false)
-  }
-
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>,
     task: Task
   ) => {
@@ -253,6 +306,10 @@ const ToDoList = () => {
   }
 
   useEffect(() => {
+    getTask()
+  }, [])
+
+  useEffect(() => {
     if (!selectedTask) return
     if (openModalEdit) {
       setEditTask(capitalization(selectedTask.task_name)?.trim() || "")
@@ -276,7 +333,11 @@ const ToDoList = () => {
 
         <Card className="p-5">
 
-          <Box className="flex gap-3">
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            postTasks(value)
+          }}
+            className="flex gap-3">
             <CustomizedTextField className="w-60"
               value={value}
               onChange={(digitado) => {
@@ -306,11 +367,11 @@ const ToDoList = () => {
                 variant="contained"
                 startIcon={<PostAddIcon />}
                 size="large"
-                onClick={() => postTasks(value)}
                 disabled={!value.trim()}
+                type="submit"
               />
             </Box>
-          </Box>
+          </form>
 
           <CustomizedDivider
             marginTop="1.25rem"
@@ -363,32 +424,32 @@ const ToDoList = () => {
           </Box>
 
           <Box className="mt-4 grid gap-1 max-h-[255px] overflow-y-auto customized-scrollbar pr-1.5 drop-shadow-md">
-            {/* {isLoading && (
-                <Box className="grid grid-rows-3 gap-1">
-                  <Box className="flex w-full gap-1">
-                    <Skeleton variant="rounded" height={"80px"} width={5} />
-                    <Skeleton variant="rounded" height={"80px"} width={"100%"} />
-                  </Box>
-                  <Box className="flex w-full gap-1">
-                    <Skeleton variant="rounded" height={"80px"} width={5} />
-                    <Skeleton variant="rounded" height={"80px"} width={"100%"} />
-                  </Box>
-                  <Box className="flex w-full gap-1">
-                    <Skeleton variant="rounded" height={"80px"} width={5} />
-                    <Skeleton variant="rounded" height={"80px"} width={"100%"} />
-                  </Box>
+
+            {isLoading && (
+              <Box className="grid grid-rows-3 gap-1">
+                <Box className="flex w-full gap-1">
+                  <Skeleton variant="rounded" height={"80px"} width={5} />
+                  <Skeleton variant="rounded" height={"80px"} width={"100%"} />
                 </Box>
-              )} */}
-            {taskList.length === 0 ?
+                <Box className="flex w-full gap-1">
+                  <Skeleton variant="rounded" height={"80px"} width={5} />
+                  <Skeleton variant="rounded" height={"80px"} width={"100%"} />
+                </Box>
+                <Box className="flex w-full gap-1">
+                  <Skeleton variant="rounded" height={"80px"} width={5} />
+                  <Skeleton variant="rounded" height={"80px"} width={"100%"} />
+                </Box>
+              </Box>
+            )}
+
+            {taskList.length === 0 && !isLoading ?
               <Box className="flex justify-center">
                 <Grow
                   in
                   timeout={1500}>
-                  <Box className="p-[2px] rounded-lg bg-gradient-to-r from-[#9370db] via-[#6a3fa0] to-[#3b0764]">
-                    <Box className="grid items-center h-[78px] p-4 rounded-lg bg-[#ede9fe]">
-                      <Typography className="flex justify-center opacity-80">Não há Tarefas em sua Lista.</Typography>
-                      <Typography className="flex justify-center opacity-80">Adicione uma Tarefa para começar!</Typography>
-                    </Box>
+                  <Box className="grid items-center h-[82px] p-4 rounded-lg bg-[#ede9fe]">
+                    <Typography className="flex justify-center opacity-80">Não há Tarefas em sua Lista.</Typography>
+                    <Typography className="flex justify-center opacity-80">Adicione uma Tarefa para começar!</Typography>
                   </Box>
                 </Grow>
               </Box>
@@ -410,6 +471,7 @@ const ToDoList = () => {
                         animateBy="letters"
                         direction="top"
                         className="pl-3"
+                        hoverAnimation
                       />
                       <CustomizedTooltip
                         title="Detalhes">
@@ -446,34 +508,34 @@ const ToDoList = () => {
 
 
           <CustomizedModal open={openModalEdit} label="Editar esta tarefa?">
+          
+              <CustomizedTextField className="w-full"
+                label="Editar"
+                value={editTask}
+                onChange={(e) => setEditTask(e.target.value)}
+                topTitleColor="#9370db"
+                topPermaColor="#9370db"
+                hoverColor="#4a0072"
+                borderColor="#4e54c8"
+                focusColor="#4e54c8" />
 
-            <CustomizedTextField className="w-full"
-              label="Editar"
-              value={editTask}
-              onChange={(e) => setEditTask(e.target.value)}
-              topTitleColor="#9370db"
-              topPermaColor="#9370db"
-              hoverColor="#4a0072"
-              borderColor="#4e54c8"
-              focusColor="#4e54c8" />
-
-            <Box className="flex justify-center gap-1.5">
-              <CustomizedButton
-                label="Salvar"
-                bgColor="#4e54c8"
-                hoverColor="#302b63"
-                variant="contained"
-                size="small"
-                disabled={editTask.trim() === "" || editTask.trim().toLowerCase() === selectedTask?.task_name.trim().toLowerCase()}
+              <Box className="flex justify-center gap-1.5">
+                <CustomizedButton
+                  label="Salvar"
+                  bgColor="#4e54c8"
+                  hoverColor="#302b63"
+                  variant="contained"
+                  size="small"
+                  disabled={editTask.trim() === "" || editTask.trim().toLowerCase() === selectedTask?.task_name.trim().toLowerCase()}
                 onClick={() => handleEditTasks()} />
-              <CustomizedButton
-                label="Cancelar"
-                bgColor="#9370db"
-                hoverColor="#ce93d8"
-                variant="contained"
-                size="small"
-                onClick={() => setOpenModalEdit(false)} />
-            </Box>
+                <CustomizedButton
+                  label="Cancelar"
+                  bgColor="#9370db"
+                  hoverColor="#ce93d8"
+                  variant="contained"
+                  size="small"
+                  onClick={() => setOpenModalEdit(false)} />
+              </Box>
 
           </CustomizedModal>
 
@@ -483,6 +545,7 @@ const ToDoList = () => {
                 "<Typography className="text-[#9370db]">{`${selectedTask && capitalization(selectedTask.task_name)}`}</Typography>"
               </Typography>
             </Box>
+            
             <Box className="flex justify-center gap-1.5">
               <CustomizedButton label="Sim" bgColor="#4e54c8" hoverColor="#4a0072" variant="contained" size="small" onClick={() => handleCloseDelete()} />
               <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenDeleteModal(false)} />
@@ -491,8 +554,8 @@ const ToDoList = () => {
 
           <CustomizedModal open={openDeleteTasksModal} label="Tem certeza que deseja excluir todas as tarefas concluídas?">
             <Box className="flex justify-center gap-1.5">
-              <CustomizedButton label="Sim" bgColor="#4e54c8" hoverColor="#4a0072" variant="contained" size="small" onClick={handleCloseDeleteTasks} />
-              <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={handleCloseDeleteTasks} />
+              <CustomizedButton label="Sim" bgColor="#4e54c8" hoverColor="#4a0072" variant="contained" size="small" onClick={handleDeleteAllConcludedTasks} />
+              <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenDeleteTasksModal(false)} />
             </Box>
           </CustomizedModal>
 
