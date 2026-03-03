@@ -14,6 +14,7 @@ type BlurTextProps = {
   easing?: Easing | Easing[];
   onAnimationComplete?: () => void;
   stepDuration?: number;
+  hoverAnimation?: boolean
 };
 
 const buildKeyframes = (
@@ -41,11 +42,14 @@ const BlurText: React.FC<BlurTextProps> = ({
   animationTo,
   easing = (t: number) => t,
   onAnimationComplete,
-  stepDuration = 0.35
+  stepDuration = 0.35,
+  hoverAnimation = false
 }) => {
   const elements = animateBy === 'words' ? text.split(' ') : text.split('');
   const [inView, setInView] = useState(false);
   const ref = useRef<HTMLParagraphElement>(null);
+  const [hovered, setHovered] = useState(false)
+  const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -80,6 +84,18 @@ const BlurText: React.FC<BlurTextProps> = ({
     [direction]
   );
 
+  const stableState = {
+    filter: 'blur(0px)',
+    opacity: 1,
+    y: 0
+  };
+
+  const hoverState = {
+    filter: 'blur(0px)',
+    opacity: 1,
+    y: direction === 'top' ? -7 : 7
+  };
+
   const fromSnapshot = animationFrom ?? defaultFrom;
   const toSnapshots = animationTo ?? defaultTo;
 
@@ -88,14 +104,16 @@ const BlurText: React.FC<BlurTextProps> = ({
   const times = Array.from({ length: stepCount }, (_, i) => (stepCount === 1 ? 0 : i / (stepCount - 1)));
 
   return (
-    <p ref={ref} className={`blur-text ${className} flex flex-wrap`}>
+    <p ref={ref} className={`blur-text ${className} flex flex-wrap`}
+      onMouseEnter={() => hoverAnimation && setHovered(true)}
+      onMouseLeave={() => hoverAnimation && setHovered(false)}>
       {elements.map((segment, index) => {
         const animateKeyframes = buildKeyframes(fromSnapshot, toSnapshots);
 
         const spanTransition: Transition = {
           duration: totalDuration,
           times,
-          delay: (index * delay) / 1000,
+          delay: hovered ? index * delay / (700) : (index * delay) / 1000,
           ease: easing
         };
 
@@ -103,9 +121,20 @@ const BlurText: React.FC<BlurTextProps> = ({
           <motion.span
             key={index}
             initial={fromSnapshot}
-            animate={inView ? animateKeyframes : fromSnapshot}
+            animate={!inView
+              ? fromSnapshot
+              : !hasAnimated
+                ? animateKeyframes
+                : hovered
+                  ? hoverState
+                  : stableState
+            }
             transition={spanTransition}
-            onAnimationComplete={index === elements.length - 1 ? onAnimationComplete : undefined}
+            onAnimationComplete={
+              index === elements.length - 1
+                ? () => setHasAnimated(true)
+                : undefined
+            }
             style={{
               display: 'inline-block',
               willChange: 'transform, filter, opacity'
