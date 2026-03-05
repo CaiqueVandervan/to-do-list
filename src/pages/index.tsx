@@ -299,12 +299,16 @@ const ToDoList = () => {
   }
 
   const formatDate = (date: string) => {
-    if (!date) return
-    const [year, month, day] = date.split("T")[0].split("-")
-    const hour = date.split("T")[1]
-    const realHour = hour.split(":")[0]
-    const minutes = hour.split(":")[1]
-    return `${day}/${month}/${year} as ${realHour}:${minutes}`
+    const newDate = new Date(date)
+    return newDate.toLocaleString('pt-BR', {
+      timeZone: "America/Sao_Paulo",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    })
   }
 
   const capitalization = (text: string) => {
