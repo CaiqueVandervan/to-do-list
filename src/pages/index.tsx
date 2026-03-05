@@ -12,7 +12,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import CancelIcon from "@mui/icons-material/Cancel";
 import CustomizedModal from "@/components/CustomizedModal"
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -24,17 +24,18 @@ import { Task } from "@/models/Task"
 import CustomizedAlert from "@/components/CustomizedAlert";
 import BlurText from "@/components/BlurText";
 import ShinyText from "@/components/ShinyText";
+import { motion } from "framer-motion"
 
 type AlertState = {
   message: React.ReactNode
 } | null
 
-const ToDoList = () => {
+const ToDoList = () => { 
 
-  const [openModalEdit, setOpenModalEdit] = useState(false)
-  const [openDeleteModal, setOpenDeleteModal] = useState(false)
-  const [openDeleteTasksModal, setOpenDeleteTasksModal] = useState(false)
-  const [value, setValue] = useState("")
+  const [openModalEdit, setOpenModalEdit] = useState<boolean>(false)
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
+  const [openDeleteTasksModal, setOpenDeleteTasksModal] = useState<boolean>(false)
+  const [value, setValue] = useState<string>("")
   const [taskList, setTaskList] = useState<Task[]>([])
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedTask, setSelectedTask] = useState<Task>()
@@ -43,11 +44,11 @@ const ToDoList = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [deletingTask, setDeletingTask] = useState<number | null>(null)
   const [openSlide, setOpenSlide] = useState<boolean>(false)
+  const ref = useRef<HTMLInputElement>()
   const maxLength = 40
 
   const getTask = async () => {
     try {
-
       const getTasks = await fetch("/api/tasks/tasks", {
         method: "GET"
       })
@@ -56,9 +57,7 @@ const ToDoList = () => {
         ...data,
         concluded: Boolean(data.concluded)
       })
-
       ))
-
     } catch (error) {
       console.error(error)
     } finally {
@@ -68,7 +67,6 @@ const ToDoList = () => {
 
   const postTasks = async (task: string) => {
     try {
-
       const novaTask = await fetch("/api/tasks/tasks", {
         method: "POST",
         headers: {
@@ -81,13 +79,12 @@ const ToDoList = () => {
       const data = await novaTask.json()
       setValue("")
       setTaskList(prev => [...prev, data])
-
       getTask()
-
       setShowAlert({
         message: (
           <Box className="flex">
-            <ShinyText text={`A Tarefa "`}
+            <ShinyText
+              text={`A Tarefa "`}
               speed={3}
               color="white"
               shineColor="#9370db"
@@ -97,7 +94,8 @@ const ToDoList = () => {
             <Typography className="text-[#9370db]">
               {capitalization(value)}
             </Typography>
-            <ShinyText text={`" foi adicionada com sucesso!`}
+            <ShinyText
+              text={`" foi adicionada com sucesso!`}
               speed={3}
               color="white"
               shineColor="#9370db"
@@ -107,7 +105,6 @@ const ToDoList = () => {
           </Box>
         )
       })
-
     } catch (error) {
       console.error("caiqewue", error)
     }
@@ -126,34 +123,42 @@ const ToDoList = () => {
       })
       if (!selectedTask) return
       setTaskList(prev => prev.map(task => task.id === selectedTask.id ? { ...task, task_name: editTask } : task))
-
       setShowAlert({
         message: (
           <Box className="flex">
-            <ShinyText text={`A Tarefa "`}
+            <ShinyText
+              text={`A Tarefa "`}
               speed={3}
               color="white"
               shineColor="#9370db"
               spread={160}
-              direction="left" />
-            <Typography className="text-[#9370db]">{capitalization(selectedTask.task_name)}</Typography>
-            <ShinyText text={`" foi editada para "`}
+              direction="left"
+            />
+            <Typography className="text-[#9370db]">
+              {capitalization(selectedTask.task_name)}
+            </Typography>
+            <ShinyText
+              text={`" foi editada para "`}
               speed={3}
               color="white"
               shineColor="#9370db"
               spread={160}
-              direction="left" />
-            <Typography className="text-[#9370db]">{capitalization(editTask)}</Typography>
-            <ShinyText text={`".`}
+              direction="left"
+            />
+            <Typography className="text-[#9370db]">
+              {capitalization(editTask)}
+            </Typography>
+            <ShinyText
+              text={`".`}
               speed={3}
               color="white"
               shineColor="#9370db"
               spread={160}
-              direction="left" />
+              direction="left"
+            />
           </Box>
         )
       })
-
     } catch (error) {
       console.warn("NãO FOIU", error)
     }
@@ -177,7 +182,6 @@ const ToDoList = () => {
     const id = selectedTask.id
     await deleteTasks(id)
     setOpenDeleteModal(false)
-
     setShowAlert({
       message: (
         <Box className="flex">
@@ -186,14 +190,18 @@ const ToDoList = () => {
             color="white"
             shineColor="#9370db"
             spread={160}
-            direction="left" />
-          <Typography className="text-[#9370db]">{capitalization(selectedTask.task_name)}</Typography>
+            direction="left"
+          />
+          <Typography className="text-[#9370db]">
+            {capitalization(selectedTask.task_name)}
+          </Typography>
           <ShinyText text={`" deletada com sucesso!`}
             speed={3}
             color="white"
             shineColor="#9370db"
             spread={160}
-            direction="left" />
+            direction="left"
+          />
         </Box>
       )
     })
@@ -222,22 +230,21 @@ const ToDoList = () => {
           concluded: concluing
         })
       })
-
       setTaskList(prev => prev.map(task => task.id === id ? { ...task, concluded: concluing } : task))
-
       setShowAlert({
         message: (
           <Box className="flex">
-            <ShinyText text={`Tarefa "`}
+            <ShinyText
+              text={`Tarefa "`}
               speed={3}
               color="white"
               shineColor="#9370db"
               spread={160}
-              direction="left" />
+              direction="left"
+            />
             <Typography className="text-[#9370db]">
               {selectedTask?.task_name}
             </Typography>
-
             {selectedTask?.concluded ?
               <ShinyText text={`" esta pendente novamente.`}
                 speed={3}
@@ -312,7 +319,9 @@ const ToDoList = () => {
   useEffect(() => {
     if (!selectedTask) return
     if (openModalEdit) {
-      setEditTask(capitalization(selectedTask.task_name)?.trim() || "")
+      setEditTask(capitalization(selectedTask.task_name)?.trim() || ""),
+      setTimeout(() => 
+        ref.current?.focus())
     }
   }, [openModalEdit])
 
@@ -462,10 +471,20 @@ const ToDoList = () => {
                     setTaskList(prev => prev.filter(t => t.id !== task.id))
                     setDeletingTask(null)
                   }}>
-                  <Box className={task.concluded ? "bg-gradient-to-l from-gray-200 via-[#3b0764] to-[#3b0764] rounded-lg p-[2px]" : "bg-gradient-to-l from-[#9370db] via-[#9370db] to-gray-200 rounded-lg p-[2px]"}>
+                  <motion.div className="rounded-lg p-[2px]"
+                    animate={{
+                      background: task.concluded ? "linear-gradient(to left, #e5e7eb, #3b0764, #3b0764)" :
+                        "linear-gradient(to left, #9370db, #9370db, #e5e7eb)"
+                    }}
+                    transition={{ duration: 1.5 }}>
 
-                    <Box className={`h-[78px] flex justify-between items-center rounded-lg ${task.concluded ? "bg-gradient-to-r from-white to-[#b591e0]" : "bg-gradient-to-r from-[#f0ebfe] to-white"}`}>
+                    <motion.div className="h-[78px] flex justify-between items-center rounded-lg"
+                      animate={{
+                        background: task.concluded ? "linear-gradient(to right, #ffffff, #b591e0)" : "linear-gradient(to right, #f0ebfe, #ffffff)"
+                      }}
+                      transition={{ duration: 1.5 }}>
                       <BlurText
+                        key={task.task_name}
                         text={capitalization(task.task_name)}
                         delay={70}
                         animateBy="letters"
@@ -479,8 +498,8 @@ const ToDoList = () => {
                           <MoreVertIcon className="text-gray-700" fontSize="small" />
                         </IconButton>
                       </CustomizedTooltip>
-                    </Box>
-                  </Box>
+                    </motion.div>
+                  </motion.div>
                 </Grow>
               ))}
           </Box>
@@ -506,36 +525,36 @@ const ToDoList = () => {
             </MenuItem>
           </CustomizedMenu>
 
-
           <CustomizedModal open={openModalEdit} label="Editar esta tarefa?">
-          
-              <CustomizedTextField className="w-full"
-                label="Editar"
-                value={editTask}
-                onChange={(e) => setEditTask(e.target.value)}
-                topTitleColor="#9370db"
-                topPermaColor="#9370db"
-                hoverColor="#4a0072"
-                borderColor="#4e54c8"
-                focusColor="#4e54c8" />
 
-              <Box className="flex justify-center gap-1.5">
-                <CustomizedButton
-                  label="Salvar"
-                  bgColor="#4e54c8"
-                  hoverColor="#302b63"
-                  variant="contained"
-                  size="small"
-                  disabled={editTask.trim() === "" || editTask.trim().toLowerCase() === selectedTask?.task_name.trim().toLowerCase()}
+            <CustomizedTextField className="w-full"
+              label="Editar"
+              value={editTask}
+              onChange={(e) => setEditTask(e.target.value)}
+              topTitleColor="#9370db"
+              topPermaColor="#9370db"
+              hoverColor="#4a0072"
+              borderColor="#4e54c8"
+              focusColor="#4e54c8"
+              inputRef={ref} />
+
+            <Box className="flex justify-center gap-1.5">
+              <CustomizedButton
+                label="Salvar"
+                bgColor="#4e54c8"
+                hoverColor="#302b63"
+                variant="contained"
+                size="small"
+                disabled={editTask.trim() === "" || editTask.trim().toLowerCase() === selectedTask?.task_name.trim().toLowerCase()}
                 onClick={() => handleEditTasks()} />
-                <CustomizedButton
-                  label="Cancelar"
-                  bgColor="#9370db"
-                  hoverColor="#ce93d8"
-                  variant="contained"
-                  size="small"
-                  onClick={() => setOpenModalEdit(false)} />
-              </Box>
+              <CustomizedButton
+                label="Cancelar"
+                bgColor="#9370db"
+                hoverColor="#ce93d8"
+                variant="contained"
+                size="small"
+                onClick={() => setOpenModalEdit(false)} />
+            </Box>
 
           </CustomizedModal>
 
@@ -545,7 +564,7 @@ const ToDoList = () => {
                 "<Typography className="text-[#9370db]">{`${selectedTask && capitalization(selectedTask.task_name)}`}</Typography>"
               </Typography>
             </Box>
-            
+
             <Box className="flex justify-center gap-1.5">
               <CustomizedButton label="Sim" bgColor="#4e54c8" hoverColor="#4a0072" variant="contained" size="small" onClick={() => handleCloseDelete()} />
               <CustomizedButton label="Cancelar" bgColor="#9370db" hoverColor="#ce93d8" variant="contained" size="small" onClick={() => setOpenDeleteModal(false)} />
