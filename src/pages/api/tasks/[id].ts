@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "DELETE") {
         try {
-            const [resp] = await dataBase.query("DELETE FROM todolist WHERE id = ?", [idNum])
+            const [resp] = await dataBase.query("DELETE FROM tasks WHERE id = ?", [idNum])
             res.status(200).json(resp)
         } catch (error) {
             res.status(500).json(error)
@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 values.push(concluded)
             }
             values.push(idNum)
-            const [resp] = await dataBase.query(`UPDATE todolist SET ${fields.join(", ")} WHERE id = ?`, values)
+            const [resp] = await dataBase.query(`UPDATE tasks SET ${fields.join(", ")} WHERE id = ?`, values)
             res.status(200).json(resp)
 
         } catch (error) {
