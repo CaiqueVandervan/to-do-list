@@ -1,4 +1,6 @@
 import { dataBase } from "@/lib/dataBase";
+import { Task, TaskExtended } from "@/models/Task";
+import { ResultSetHeader } from "mysql2";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -8,8 +10,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "DELETE") {
         try {
-            const [resp] = await dataBase.query("DELETE FROM tasks WHERE id = ?", [idNum])
-            res.status(200).json(resp)
+
+            const [task] = await dataBase.query<TaskExtended[]>("SELECT * FROM tasks WHERE id = ?", [idNum])
+
+            const taskName = task[0]
+
+            await dataBase.query<ResultSetHeader>("DELETE FROM tasks WHERE id = ?", [idNum])
+
+            res.status(200).json(taskName)
         } catch (error) {
             res.status(500).json(error)
         }
@@ -17,10 +25,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === "PUT") {
         try {
-            const { task_name, concluded } = req.body
+            const { task_name, concluded }: Task = req.body
 
             const fields: string[] = []
-            const values: any[] = []
+            const values: (string | number | boolean)[] = []
 
             if (typeof task_name === "string") {
                 fields.push("task_name = ?")
@@ -31,8 +39,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 values.push(concluded)
             }
             values.push(idNum)
-            const [resp] = await dataBase.query(`UPDATE tasks SET ${fields.join(", ")} WHERE id = ?`, values)
-            res.status(200).json(resp)
+            await dataBase.query<ResultSetHeader>(`UPDATE tasks SET ${fields.join(", ")} WHERE id = ?`, values)
+
+            const [resp] = await dataBase.query<TaskExtended[]>("SELECT * FROM tasks WHERE id= ?", [idNum])
+
+            res.status(200).json(resp[0])
 
         } catch (error) {
             res.status(500).json(error)
