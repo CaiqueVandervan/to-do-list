@@ -1,0 +1,1 @@
+export type ChipFilter = "all" | "pending" | "concluded"
